@@ -133,3 +133,4 @@ dmypy.json
 
 # Properties/Keys
 properties.ini
+*.ini
