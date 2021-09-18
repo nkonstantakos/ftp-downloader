@@ -130,3 +130,6 @@ dmypy.json
 
 # IDE (Jetbrains)
 .idea/*
+
+# Properties/Keys
+properties.ini
