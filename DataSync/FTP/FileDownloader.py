@@ -1,29 +1,28 @@
 import ftplib
 import configparser
 
+from DataSync.Model.SyncFile import SyncFile
+
 
 class FileDownloader:
 
-    def __init__(self, config: configparser.ConfigParser, ftp: ftplib.FTP, remote_file_path: str, local_file_path: str,
-                 dry_run: bool):
+    def __init__(self, config: configparser.ConfigParser, ftp: ftplib.FTP, file: SyncFile):
 
         self.config = config
         self.ftp = ftp
-        self.remote_file_path = remote_file_path
-        self.local_file_path = local_file_path
-        self.dry_run = dry_run
+        self.file = file
 
         self.ftp.sendcmd("TYPE i")
-        self.size = self.ftp.size(remote_file_path)
+        self.size = self.ftp.size(self.file.full_file_path)
 
-    def download(self):
-        if not self.dry_run:
-            self.ftp.retrbinary("RETR " + self.remote_file_path, self.file_write)
+    def download(self, dry_run: bool):
+        if not dry_run:
+            self.ftp.retrbinary("RETR " + self.file.file_path, self.file_write)
         else:
-            print("Write file {0} to {1}".format(self.remote_file_path, self.local_file_path))
+            print("Write file {0} to {1}".format(self.file.file_path, self.file.file_path))
 
     def file_write(self, data):
-        file = open(self.local_file_path, 'ab')
-        file.write(data)
-        file.close()
+        new_file = open(self.file.file_path, 'ab')
+        new_file.write(data)
+        new_file.close()
 

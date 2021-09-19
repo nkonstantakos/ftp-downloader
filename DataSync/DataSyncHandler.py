@@ -19,6 +19,7 @@ class DataSyncHandler:
         remote_files: list[SyncFile] = self.ftp_handler.get_remote_files()
         local_files: list[SyncFile] = self.local_handler.get_local_files()
         new_files: list[SyncFile] = self.discover_new_files(local_files, remote_files)
+        self.download_new_files(new_files)
         self.ftp_handler.close()
         self.print_all("***PRINTING ALL REMOTE FILES***", remote_files)
         self.print_all("***PRINTING ALL LOCAL FILES***", local_files)
@@ -43,3 +44,7 @@ class DataSyncHandler:
         print(header)
         for item in all_items:
             print('Path: {0} FileName: {1} FullPath: {2}'.format(item.file_path, item.file_name, item.full_file_path))
+
+    def download_new_files(self, new_files: list[SyncFile]):
+        for file in new_files:
+            self.ftp_handler.download_file(file, dry_run=self.dry_run)

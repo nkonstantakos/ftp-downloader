@@ -42,9 +42,9 @@ class FTPHandler:
                 files.append(SyncFile(entry[0], remote_dir.replace(self.remote_download_folder, ''), remote_dir,
                                       int(entry[1]['size'])))
 
-    def download_file(self, file_path: str):
-        downloader = FileDownloader(self.config, self.ftp, file_path, file_path, self.dry_run)
-        downloader.download()
+    def download_file(self, file: SyncFile, dry_run: bool = False):
+        downloader = FileDownloader(self.config, self.ftp, file)
+        downloader.download(dry_run)
 
     def close(self):
         self.ftp.close()
