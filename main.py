@@ -3,7 +3,7 @@ import sys
 import getopt
 import configparser
 
-from FTP.FTPHandler import FTPHandler
+from DataSync.DataSyncHandler import DataSyncHandler
 
 config = configparser.ConfigParser()
 bot = discord.Client()
@@ -33,11 +33,10 @@ def run(argv):
             dry_run = arg == 'True'
 
     config.read(properties_location)
-    ftp_handler = FTPHandler(config, dry_run)
-    ftp_handler.scan_for_updates()
+    sync_handler = DataSyncHandler(config, dry_run)
+    sync_handler.sync_data()
     if bot_enabled:
         bot.run(config['DISCORD']['botKey'])
-    ftp_handler.close()
 
 
 @bot.event
