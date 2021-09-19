@@ -132,6 +132,7 @@ dmypy.json
 .idea/*
 
 # Local Files
-properties.ini
-*.ini
 .testData/*
+
+# OS
+.DS_Store
