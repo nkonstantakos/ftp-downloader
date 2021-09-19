@@ -43,7 +43,7 @@ class FTPHandler:
                                       int(entry[1]['size'])))
 
     def download_file(self, file: SyncFile, dry_run: bool = False):
-        downloader = FileDownloader(self.config, self.ftp, file)
+        downloader = FileDownloader(self.config['FTP']['localRoot'], self.ftp, file)
         downloader.download(dry_run)
 
     def close(self):
