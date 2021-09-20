@@ -10,7 +10,6 @@ class FTPHandler:
     def __init__(self, config: configparser.ConfigParser):
         self.config = config
         self.ftp = ftplib.FTP(self.config['FTP']['url'])
-        self.ftp.login(config['FTP']['username'], config['FTP']['password'])
         self.remote_download_folder = config['FTP']['remoteRoot']
 
     def get_remote_files(self):
@@ -45,6 +44,9 @@ class FTPHandler:
     def download_file(self, file: SyncFile, dry_run: bool = False):
         downloader = FileDownloader(self.config['FTP']['localRoot'], self.ftp, file)
         downloader.download(dry_run)
+
+    def login(self):
+        self.ftp.login(self.config['FTP']['username'], self.config['FTP']['password'])
 
     def close(self):
         self.ftp.close()

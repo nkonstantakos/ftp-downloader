@@ -16,6 +16,7 @@ class DataSyncHandler:
         self.local_handler = LocalFileHandler(config)
 
     def sync_data(self):
+        self.ftp_handler.login()
         remote_files: list[SyncFile] = self.ftp_handler.get_remote_files()
         local_files: list[SyncFile] = self.local_handler.get_local_files()
         new_files: list[SyncFile] = self.discover_new_files(local_files, remote_files)

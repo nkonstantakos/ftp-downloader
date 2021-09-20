@@ -9,12 +9,18 @@ config = configparser.ConfigParser()
 bot = discord.Client()
 dry_run = False
 bot_enabled = False
+sync_handler: DataSyncHandler = None
 
-ftp_handler = None
+bot_commands = [
+    discord.ApplicationCommand(
+        name="sync",
+        description="Manually triggers a file sync."
+    ),
+]
 
 
-def run(argv):
-    global dry_run, config, ftp_handler, bot_enabled
+async def run(argv):
+    global dry_run, config, sync_handler, bot_enabled
     properties_location = 'properties.ini'
     try:
         opts, args = getopt.getopt(argv, "b:p:d:c:n", ["bot=", "properties=", "dry-run=", "chunks=", "num-files="])
@@ -34,9 +40,10 @@ def run(argv):
 
     config.read(properties_location)
     sync_handler = DataSyncHandler(config, dry_run)
-    sync_handler.sync_data()
     if bot_enabled:
-        bot.run(config['DISCORD']['botKey'])
+        await bot.login(config['DISCORD']['botKey'])
+        await bot.register_application_commands(bot_commands)
+        await bot.connect()
 
 
 @bot.event
@@ -44,8 +51,15 @@ async def on_ready():
     message = await bot.get_channel(int(config['DISCORD']['channelId'])).send(
         '```Starting...```')
 
-    quit()
+
+@bot.event
+async def on_slash_command(interaction: discord.Interaction):
+    command_name = interaction.data['name']
+    if command_name == "sync":
+        await interaction.response.send_message("Triggering a file sync...")
+        sync_handler.sync_data()
 
 
 if __name__ == "__main__":
-    run(sys.argv[1:])
+    loop = bot.loop
+    loop.run_until_complete(run(sys.argv[1:]))
