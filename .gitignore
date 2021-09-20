@@ -133,6 +133,7 @@ dmypy.json
 
 # Local Files
 .testData/*
+.local/*
 
 # OS
 .DS_Store
