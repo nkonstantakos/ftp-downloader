@@ -22,9 +22,6 @@ class DataSyncHandler:
         new_files: list[SyncFile] = self.discover_new_files(local_files, remote_files)
         self.download_new_files(new_files)
         self.ftp_handler.close()
-        self.print_all("***PRINTING ALL REMOTE FILES***", remote_files)
-        self.print_all("***PRINTING ALL LOCAL FILES***", local_files)
-        self.print_all("***PRINTING ALL NEW FILES***", new_files)
 
     def discover_new_files(self, local_files: list[SyncFile], remote_files: list[SyncFile]):
         new_files: list[SyncFile] = []
