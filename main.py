@@ -63,10 +63,10 @@ async def print_pending(new_files: list[SyncFile]):
     message = await bot.get_channel(int(config['DISCORD']['channelId'])).send(message_content)
 
 
-
 @bot.event
 async def on_ready():
-    sync_task.start()
+    if not sync_task.is_running():
+        sync_task.start()
     message = await bot.get_channel(int(config['DISCORD']['channelId'])).send(
         '```Starting...```')
 
