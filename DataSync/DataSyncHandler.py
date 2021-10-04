@@ -15,13 +15,14 @@ class DataSyncHandler:
         self.ftp_handler = FTPHandler(config)
         self.local_handler = LocalFileHandler(config)
 
-    def sync_data(self):
+    async def sync_data(self, print_callback):
         self.ftp_handler.login()
-        print("Beginning file sync...")
         remote_files: list[SyncFile] = self.ftp_handler.get_remote_files()
         local_files: list[SyncFile] = self.local_handler.get_local_files()
         new_files: list[SyncFile] = self.discover_new_files(local_files, remote_files)
-        self.download_new_files(new_files)
+        if len(new_files) > 0:
+            await print_callback(new_files)
+            self.download_new_files(new_files)
         self.ftp_handler.close()
 
     def discover_new_files(self, local_files: list[SyncFile], remote_files: list[SyncFile]):
@@ -45,7 +46,5 @@ class DataSyncHandler:
             print('Path: {0} FileName: {1} FullPath: {2}'.format(item.file_path, item.file_name, item.full_file_path))
 
     def download_new_files(self, new_files: list[SyncFile]):
-        if len(new_files) == 0:
-            print("No diffs detected")
         for file in new_files:
             self.ftp_handler.download_file(file, dry_run=self.dry_run)

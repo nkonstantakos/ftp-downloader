@@ -46,6 +46,7 @@ class FTPHandler:
         downloader.download(dry_run)
 
     def login(self):
+        self.ftp = ftplib.FTP(self.config['FTP']['url'])
         self.ftp.login(self.config['FTP']['username'], self.config['FTP']['password'])
 
     def close(self):

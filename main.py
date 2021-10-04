@@ -3,7 +3,10 @@ import sys
 import getopt
 import configparser
 
+from discord.ext import tasks
+
 from DataSync.DataSyncHandler import DataSyncHandler
+from DataSync.Model.SyncFile import SyncFile
 
 config = configparser.ConfigParser()
 bot = discord.Client()
@@ -46,8 +49,24 @@ async def run(argv):
         await bot.connect()
 
 
+@tasks.loop(seconds=60.0)
+async def sync_task():
+    global sync_handler
+    await sync_handler.sync_data(print_pending)
+
+
+async def print_pending(new_files: list[SyncFile]):
+    message_content = "```New files detected: "
+    for file in new_files:
+        message_content = message_content + "\n" + file.file_name
+    message_content = message_content + "```"
+    message = await bot.get_channel(int(config['DISCORD']['channelId'])).send(message_content)
+
+
+
 @bot.event
 async def on_ready():
+    sync_task.start()
     message = await bot.get_channel(int(config['DISCORD']['channelId'])).send(
         '```Starting...```')
 
@@ -57,7 +76,7 @@ async def on_slash_command(interaction: discord.Interaction):
     command_name = interaction.data['name']
     if command_name == "sync":
         await interaction.response.send_message("Triggering a file sync...")
-        sync_handler.sync_data()
+        await sync_handler.sync_data(print_pending)
 
 
 if __name__ == "__main__":
