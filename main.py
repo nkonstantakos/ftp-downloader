@@ -49,7 +49,7 @@ async def run(argv):
         await bot.connect()
 
 
-@tasks.loop(seconds=60.0)
+@tasks.loop(seconds=120)
 async def sync_task():
     global sync_handler
     if not sync_handler.sync_in_progress:
@@ -57,6 +57,12 @@ async def sync_task():
             await sync_handler.sync_data(print_pending)
         except Exception as ex:
             print(ex)
+
+
+@sync_task.after_loop
+async def on_sync_cancel(self):
+    if sync_task.is_being_cancelled() and len(self._batch) != 0:
+        print("Error in processing sync task")
 
 
 async def print_pending(new_files: list[SyncFile]):
@@ -70,7 +76,7 @@ async def print_pending(new_files: list[SyncFile]):
 @bot.event
 async def on_ready():
     if not sync_task.is_running():
-        sync_task.start()
+        sync_task.start(seconds=60)
 
 
 @bot.event
