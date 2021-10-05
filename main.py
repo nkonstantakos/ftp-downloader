@@ -49,7 +49,7 @@ async def run(argv):
         await bot.connect()
 
 
-@tasks.loop(seconds=120)
+@tasks.loop(seconds=30)
 async def sync_task():
     global sync_handler
     if not sync_handler.sync_in_progress:
@@ -57,6 +57,12 @@ async def sync_task():
             await sync_handler.sync_data(print_pending)
         except Exception as ex:
             print(ex)
+
+
+@tasks.loop(seconds=5)
+async def print_task():
+    global sync_handler
+    await sync_handler.print_queue()
 
 
 @sync_task.after_loop
@@ -77,6 +83,8 @@ async def print_pending(new_files: list[SyncFile]):
 async def on_ready():
     if not sync_task.is_running():
         sync_task.start()
+    if not print_task.is_running():
+        print_task.start()
 
 
 @bot.event

@@ -6,3 +6,4 @@ class SyncFile:
         self.full_relative_path = "{0}/{1}".format(file_path[1:], file_name)
         self.full_file_path = "{0}/{1}".format(full_file_path, file_name)
         self.size = size
+        self.progress = 0

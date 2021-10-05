@@ -1,3 +1,4 @@
+import asyncio
 import ftplib
 import os
 
@@ -26,5 +27,6 @@ class FileDownloader:
         os.makedirs(os.path.dirname(self.destination_path), exist_ok=True)
         new_file = open(self.destination_path, 'ab')
         new_file.write(data)
+        self.file.progress += len(data)
         new_file.close()
 

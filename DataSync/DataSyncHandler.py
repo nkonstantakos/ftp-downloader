@@ -1,3 +1,4 @@
+import asyncio
 import configparser
 import os
 
@@ -5,6 +6,7 @@ from pathlib import Path, PureWindowsPath, PurePosixPath, PurePath
 from DataSync.FTP.FTPHandler import FTPHandler
 from DataSync.Model.SyncFile import SyncFile
 from DataSync.LocalFileSystem.LocalFileHandler import LocalFileHandler
+from DataSync.Queue.FileQueue import FileQueue
 
 
 class DataSyncHandler:
@@ -15,6 +17,7 @@ class DataSyncHandler:
         self.ftp_handler = FTPHandler(config)
         self.local_handler = LocalFileHandler(config)
         self.sync_in_progress = False
+        self.queue = FileQueue()
 
     async def sync_data(self, print_callback):
         self.sync_in_progress = True
@@ -24,7 +27,7 @@ class DataSyncHandler:
         new_files: list[SyncFile] = self.discover_new_files(local_files, remote_files)
         if len(new_files) > 0:
             await print_callback(new_files)
-            self.download_new_files(new_files)
+            await self.download_new_files(new_files)
         self.ftp_handler.close()
         self.sync_in_progress = False
 
@@ -49,6 +52,13 @@ class DataSyncHandler:
         for item in all_items:
             print('Path: {0} FileName: {1} FullPath: {2}'.format(item.file_path, item.file_name, item.full_file_path))
 
-    def download_new_files(self, new_files: list[SyncFile]):
+    async def download_new_files(self, new_files: list[SyncFile]):
+        self.queue.add_items_to_queue(new_files)
         for file in new_files:
             self.ftp_handler.download_file(file, dry_run=self.dry_run)
+            self.queue.remove_from_queue(file)
+
+    async def print_queue(self):
+        message = await self.queue.print_queue()
+        if message is not None:
+            print(message)
