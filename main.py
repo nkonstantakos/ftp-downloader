@@ -76,7 +76,7 @@ async def print_pending(new_files: list[SyncFile]):
 @bot.event
 async def on_ready():
     if not sync_task.is_running():
-        sync_task.start(seconds=60)
+        sync_task.start()
 
 
 @bot.event
