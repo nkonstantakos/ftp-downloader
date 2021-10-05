@@ -52,7 +52,11 @@ async def run(argv):
 @tasks.loop(seconds=60.0)
 async def sync_task():
     global sync_handler
-    await sync_handler.sync_data(print_pending)
+    if not sync_handler.sync_in_progress:
+        try:
+            await sync_handler.sync_data(print_pending)
+        except Exception as ex:
+            print(ex)
 
 
 async def print_pending(new_files: list[SyncFile]):
@@ -67,8 +71,6 @@ async def print_pending(new_files: list[SyncFile]):
 async def on_ready():
     if not sync_task.is_running():
         sync_task.start()
-    message = await bot.get_channel(int(config['DISCORD']['channelId'])).send(
-        '```Starting...```')
 
 
 @bot.event

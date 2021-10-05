@@ -14,8 +14,10 @@ class DataSyncHandler:
         self.dry_run = dry_run
         self.ftp_handler = FTPHandler(config)
         self.local_handler = LocalFileHandler(config)
+        self.sync_in_progress = False
 
     async def sync_data(self, print_callback):
+        self.sync_in_progress = True
         self.ftp_handler.login()
         remote_files: list[SyncFile] = self.ftp_handler.get_remote_files()
         local_files: list[SyncFile] = self.local_handler.get_local_files()
@@ -24,6 +26,7 @@ class DataSyncHandler:
             await print_callback(new_files)
             self.download_new_files(new_files)
         self.ftp_handler.close()
+        self.sync_in_progress = False
 
     def discover_new_files(self, local_files: list[SyncFile], remote_files: list[SyncFile]):
         new_files: list[SyncFile] = []
