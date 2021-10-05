@@ -41,7 +41,8 @@ class DataSyncHandler:
         return new_files
 
     def files_match(self, local: SyncFile, remote: SyncFile):
-        return local.file_name == remote.file_name and PurePath(local.file_path) == PurePath(remote.file_path)
+        return local.file_name == remote.file_name and PurePath(local.file_path) == PurePath(remote.file_path) \
+               and local.size == remote.size
 
     def print_all(self, header: str, all_items: list[SyncFile]):
         print(header)

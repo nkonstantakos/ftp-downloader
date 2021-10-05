@@ -14,5 +14,7 @@ class LocalFileHandler:
         local_files: list[SyncFile] = []
         for path, sub_dirs, files in os.walk(self.local_root):
             for name in files:
-                local_files.append(SyncFile(name, path.replace(self.local_root, ''), path, 0))
+                local_path = os.path.join(path, name)
+                size = os.stat(local_path).st_size
+                local_files.append(SyncFile(name, path.replace(self.local_root, ''), path, size))
         return local_files
