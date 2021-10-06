@@ -54,9 +54,14 @@ async def sync_task():
     global sync_handler
     if not sync_handler.sync_in_progress:
         try:
-            await sync_handler.sync_data(print_pending)
+            await sync_handler.sync_data(download_succeeded)
         except Exception as ex:
             print(ex)
+
+
+async def download_succeeded(file: SyncFile):
+    message_content = "```File Downloaded: {0} ({1})```".format(file.file_name, file.size)
+    message = await bot.get_channel(int(config['DISCORD']['channelId'])).send(message_content)
 
 
 @sync_task.after_loop
